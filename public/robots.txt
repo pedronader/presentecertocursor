@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://presentecerto.com.br/sitemap.xml
+
+# Crawl-delay (optional - 1 second between requests)
+Crawl-delay: 1
+
+# Allow all search engines to index the site
+Allow: /presente-para-*
+Allow: /sitemap.xml
+Allow: /robots.txt
