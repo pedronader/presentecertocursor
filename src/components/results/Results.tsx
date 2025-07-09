@@ -6,6 +6,7 @@ import { RecommendationCard } from './RecommendationCard';
 import { EmailCapture } from './EmailCapture';
 import { SEOService } from '../../services/seoService';
 import { RefreshCw, Share2 } from 'lucide-react';
+import { useAnalytics } from '../analytics/AnalyticsProvider';
 
 interface ResultsProps {
   quizData: QuizData;
@@ -17,7 +18,11 @@ export const Results: React.FC<ResultsProps> = ({ quizData, sessionId, onRestart
   const navigate = useNavigate();
   const [showEmailCapture, setShowEmailCapture] = useState(false);
   const [recommendations, setRecommendations] = useState<GiftRecommendation[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true); // initial load spinner
+  const [isFetchingMore, setIsFetchingMore] = useState(false); // spinner only for "show more"
+  const [reloadCount, setReloadCount] = useState(0);
+  const MAX_RELOADS = 2;
+  const { analytics } = useAnalytics();
   const [seoUrl, setSeoUrl] = useState<string>('');
 
   const seoService = new SEOService();
@@ -79,6 +84,29 @@ export const Results: React.FC<ResultsProps> = ({ quizData, sessionId, onRestart
     }
   };
 
+  const handleShowMore = async () => {
+    if (reloadCount >= MAX_RELOADS) return;
+
+    analytics.trackEvent('more_recommendations_click', {
+      quiz_session_id: sessionId,
+      reload_count: reloadCount + 1
+    });
+
+    setReloadCount(reloadCount + 1);
+    setIsFetchingMore(true);
+    try {
+      const newRecs = await getGiftRecommendations(quizData);
+      const existingIds = new Set(recommendations.map((r) => r.id));
+      const filtered = newRecs.filter((r) => !existingIds.has(r.id));
+      if (filtered.length > 0) {
+        setRecommendations(prev => [...prev, ...filtered]);
+      }
+    } catch (error) {
+      console.error('Error fetching new recommendations:', error);
+    }
+    setIsFetchingMore(false);
+  };
+
   if (isLoading) {
     return (
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -138,7 +166,7 @@ export const Results: React.FC<ResultsProps> = ({ quizData, sessionId, onRestart
       </div>
 
       {/* Recommendations */}
-      <div className="space-y-6 mb-8">
+      <div className="space-y-6 mb-4">
         {recommendations.map((recommendation, index) => (
           <RecommendationCard
             key={recommendation.id}
@@ -147,6 +175,29 @@ export const Results: React.FC<ResultsProps> = ({ quizData, sessionId, onRestart
             quizSessionId={sessionId}
           />
         ))}
+      </div>
+
+      {/* Show More Recommendations Button */}
+      <div className="flex justify-center mb-8">
+        <button
+          onClick={handleShowMore}
+          disabled={reloadCount >= MAX_RELOADS || isFetchingMore}
+          className={`flex items-center space-x-2 px-8 py-3 rounded-full font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 ${
+            reloadCount >= MAX_RELOADS || isFetchingMore
+              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              : 'bg-gradient-to-r from-red-500 to-pink-500 text-white hover:from-red-600 hover:to-pink-600'
+          }`}
+        >
+          {isFetchingMore ? (
+            <svg className="animate-spin h-5 w-5 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8 8 8 0 008 8v-4l-3 3 3 3v-4a8 8 0 01-8-8z"></path>
+            </svg>
+          ) : (
+            <RefreshCw className="w-5 h-5" />
+          )}
+          <span>{reloadCount >= MAX_RELOADS ? 'Limite atingido' : 'Quero ver outras opções'}</span>
+        </button>
       </div>
 
       {/* Email Capture */}

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Gift, Clock, Heart, Star } from 'lucide-react';
+import { Gift, Clock, Heart, Star as StarIcon, CheckCircle, UserCircle } from 'lucide-react';
 import { ProductUpdateButton } from './admin/ProductUpdateButton';
 import { ExploreByCategorySection } from './home/ExploreByCategorySection';
+import { FAQSection } from './home/FAQSection';
 
 interface LandingPageProps {
   onStartQuiz: () => void;
@@ -11,6 +12,24 @@ interface LandingPageProps {
 export const LandingPage: React.FC<LandingPageProps> = ({ onStartQuiz }) => {
   const [showAdmin, setShowAdmin] = useState(false);
   const navigate = useNavigate();
+
+  const testimonials = [
+    {
+      quote: 'Fiquei surpresa com a precisão! O quiz entendeu direitinho minha mãe.',
+      name: 'Luana',
+      city: 'Belo Horizonte'
+    },
+    {
+      quote: 'Achei um presente criativo e ainda ganhei pontos com minha namorada!',
+      name: 'Thiago',
+      city: 'São Paulo'
+    },
+    {
+      quote: 'A explicação emocional me fez ver o presente com outros olhos.',
+      name: 'Camila',
+      city: 'Recife'
+    }
+  ];
 
   // Listen for custom quiz start event from SEO pages
   useEffect(() => {
@@ -62,13 +81,34 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartQuiz }) => {
             Responda nosso quiz emocional personalizado e descubra presentes únicos 
             que vão tocar o coração de quem você ama
           </p>
+
+          {/* Highlight bullets */}
+          <ul className="text-left max-w-md mx-auto mt-8 space-y-3">
+            <li className="flex items-start space-x-2">
+              <CheckCircle className="w-5 h-5 text-green-500 mt-1" />
+              <span className="text-lg text-gray-700">
+                <strong>100% gratuito</strong> – sem taxas, sem cadastro obrigatório
+              </span>
+            </li>
+            <li className="flex items-start space-x-2">
+              <CheckCircle className="w-5 h-5 text-green-500 mt-1" />
+              <span className="text-lg text-gray-700">
+                <strong>Baseado em inteligência artificial</strong> – recomendações feitas por IA
+              </span>
+            </li>
+            <li className="flex items-start space-x-2">
+              <CheckCircle className="w-5 h-5 text-green-500 mt-1" />
+              <span className="text-lg text-gray-700">
+                <strong>Sugestões personalizadas</strong> – presentes sob medida para cada perfil
+              </span>
+            </li>
+          </ul>
         </div>
-        
         <button
           onClick={onStartQuiz}
-          className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-red-600 hover:to-pink-600 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl"
+          className="mt-8 bg-gradient-to-r from-red-500 to-pink-500 text-white px-10 py-4 rounded-full text-lg font-semibold hover:from-red-600 hover:to-pink-600 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
         >
-          Começar Quiz 🎁
+          Encontrar presente agora 🎁
         </button>
       </div>
 
@@ -96,7 +136,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartQuiz }) => {
         
         <div className="text-center">
           <div className="inline-flex items-center justify-center w-12 h-12 bg-purple-100 rounded-full mb-4">
-            <Star className="w-6 h-6 text-purple-600" />
+            <StarIcon className="w-6 h-6 text-purple-600" />
           </div>
           <h3 className="text-lg font-semibold text-gray-900 mb-2">Curado</h3>
           <p className="text-gray-600">
@@ -109,35 +149,38 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartQuiz }) => {
       <ExploreByCategorySection />
 
       {/* Testimonials */}
-      <div className="bg-white rounded-2xl shadow-lg p-8">
+      <div className="bg-white rounded-2xl shadow-lg p-8 mt-12">
         <h3 className="text-2xl font-bold text-gray-900 text-center mb-8">
           O que nossos usuários dizem
         </h3>
-        
-        <div className="grid md:grid-cols-2 gap-8">
-          <div className="text-center">
-            <div className="mb-4">
-              <div className="w-16 h-16 bg-gradient-to-br from-pink-400 to-red-400 rounded-full mx-auto mb-3"></div>
-              <p className="text-gray-600 italic">
-                "Encontrei o presente perfeito para minha mãe em poucos minutos! 
-                A explicação emocional me ajudou a entender por que era ideal."
-              </p>
-              <p className="text-sm text-gray-500 mt-2">- Ana, São Paulo</p>
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          {testimonials.map((t, i) => (
+            <div key={i} className="flex flex-col items-center text-center p-6 border border-gray-100 rounded-xl shadow-sm hover:shadow-md transition-shadow bg-gray-50">
+              {/* Avatar */}
+              <div className="flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-red-500 to-pink-500 mb-4">
+                <UserCircle className="w-10 h-10 text-white" />
+              </div>
+
+              {/* Quote */}
+              <p className="text-gray-700 italic mb-4 leading-relaxed">“{t.quote}”</p>
+
+              {/* Rating */}
+              <div className="flex mb-2" aria-label="5 de 5 estrelas">
+                {Array.from({ length: 5 }).map((_, idx) => (
+                  <StarIcon key={idx} className="w-5 h-5 text-yellow-400" />
+                ))}
+              </div>
+
+              {/* Name & city */}
+              <p className="text-sm text-gray-600 font-semibold">{t.name}, {t.city}</p>
             </div>
-          </div>
-          
-          <div className="text-center">
-            <div className="mb-4">
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-purple-400 rounded-full mx-auto mb-3"></div>
-              <p className="text-gray-600 italic">
-                "Surpreendi minha namorada com um presente que ela amou! 
-                O quiz realmente entende o que a pessoa gosta."
-              </p>
-              <p className="text-sm text-gray-500 mt-2">- Carlos, Rio de Janeiro</p>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
+
+      {/* FAQ Section */}
+      <FAQSection />
     </div>
   );
 };
