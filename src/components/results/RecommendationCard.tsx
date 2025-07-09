@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { GiftRecommendation } from '../../types/quiz';
-import { ExternalLink, Heart, Star, ImageIcon } from 'lucide-react';
+import { ExternalLink, Link2, MessageCircle, Star, ImageIcon } from 'lucide-react';
 import { QuizService } from '../../services/quizService';
 import { useAnalytics } from '../analytics/AnalyticsProvider';
 
@@ -164,9 +164,6 @@ export const RecommendationCard: React.FC<RecommendationCardProps> = ({
                 ))}
               </div>
             </div>
-            <button className="text-red-500 hover:text-red-600 transition-colors">
-              <Heart className="w-6 h-6" />
-            </button>
           </div>
 
           <p className="text-gray-600 mb-4">
@@ -189,6 +186,32 @@ export const RecommendationCard: React.FC<RecommendationCardProps> = ({
             <span>{getButtonText()}</span>
             <ExternalLink className="w-5 h-5" />
           </button>
+
+          {/* Share Buttons */}
+          <div className="flex justify-center space-x-4 mt-4">
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(recommendation.affiliateLink).then(() => {
+                  alert('Link copiado para a área de transferência!');
+                });
+              }}
+              className="flex items-center space-x-1 text-gray-500 hover:text-red-500 text-sm focus:outline-none"
+            >
+              <Link2 className="w-4 h-4" />
+              <span>Compartilhar Link</span>
+            </button>
+
+            <button
+              onClick={() => {
+                const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(recommendation.affiliateLink)}`;
+                window.open(whatsappUrl, '_blank');
+              }}
+              className="flex items-center space-x-1 text-gray-500 hover:text-green-600 text-sm focus:outline-none"
+            >
+              <MessageCircle className="w-4 h-4" />
+              <span>WhatsApp</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>

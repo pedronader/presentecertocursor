@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { ArrowLeft } from 'lucide-react';
 import { QuestionCard } from './QuestionCard';
 import { ProgressBar } from './ProgressBar';
 import { questions } from '../../data/questions';
@@ -32,7 +33,13 @@ export const Quiz: React.FC<QuizProps> = ({ onComplete }) => {
       value,
     };
 
-    const newAnswers = [...answers, newAnswer];
+    const newAnswers = [...answers];
+    if (newAnswers.length > currentQuestion) {
+      // Replace existing answer when revisiting
+      newAnswers[currentQuestion] = newAnswer;
+    } else {
+      newAnswers.push(newAnswer);
+    }
     setAnswers(newAnswers);
 
     setIsTransitioning(true);
@@ -80,14 +87,33 @@ export const Quiz: React.FC<QuizProps> = ({ onComplete }) => {
 
   const progress = ((currentQuestion + 1) / questions.length) * 100;
 
+  const handleBack = () => {
+    if (currentQuestion === 0) return;
+    setCurrentQuestion(currentQuestion - 1);
+  };
+
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <ProgressBar progress={progress} />
       
-      <div className="mb-8">
-        <p className="text-sm text-gray-500 text-center">
+      <div className="mb-8 flex items-center justify-between">
+        {/* Back Button */}
+        <button
+          onClick={handleBack}
+          disabled={currentQuestion === 0}
+          title="Voltar para pergunta anterior"
+          className={`flex items-center space-x-2 text-sm font-medium px-4 py-2 rounded-full border transition-colors focus:outline-none ${
+            currentQuestion === 0 ? 'cursor-not-allowed text-gray-300 border-gray-200' : 'text-gray-600 border-gray-300 hover:bg-gray-50 hover:text-red-500'
+          }`}
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Voltar</span>
+        </button>
+
+        <p className="text-sm text-gray-500 text-center flex-1">
           Pergunta {currentQuestion + 1} de {questions.length}
         </p>
+        <div className="w-16" /> {/* spacer to balance layout */}
       </div>
 
       <div className={`transition-all duration-300 ${isTransitioning ? 'opacity-0 transform translate-x-8' : 'opacity-100 transform translate-x-0'}`}>
